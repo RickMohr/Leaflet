@@ -57,31 +57,21 @@ L.Map.Drag = L.Handler.extend({
 		map
 		    .fire('movestart')
 		    .fire('dragstart');
-
-		if (map.options.inertia) {
-			this._positions = [];
-			this._times = [];
-		}
 	},
 
 	_onDrag: function () {
 		if (this._map.options.inertia) {
-			var time = this._lastTime = +new Date(),
-			    pos = this._lastPos = this._draggable._absPos || this._draggable._newPos;
-
-			this._positions.push(pos);
-			this._times.push(time);
-
-			if (time - this._times[0] > 100) {
-				this._positions.shift();
-				this._times.shift();
-			}
+			this._oldTime = this._time;
+			this._oldPos = this._pos;
+			this._time = +new Date();
+			this._pos = this._draggable._absPos || this._draggable._newPos;
 		}
 
 		this._map
 		    .fire('move')
 		    .fire('drag');
 	},
+
 
 	_onViewReset: function () {
 		var pxCenter = this._map.getSize().divideBy(2),
@@ -108,9 +98,10 @@ L.Map.Drag = L.Handler.extend({
 	_onDragEnd: function (e) {
 		var map = this._map,
 		    options = map.options,
-		    delay = +new Date() - this._lastTime,
 
-		    noInertia = !options.inertia || delay > options.inertiaThreshold || !this._positions[0];
+		    timeDelta = this._time - this._oldTime,
+
+		    noInertia = !options.inertia || timeDelta > options.inertiaThreshold;
 
 		map.fire('dragend', e);
 
@@ -119,8 +110,8 @@ L.Map.Drag = L.Handler.extend({
 
 		} else {
 
-			var direction = this._lastPos.subtract(this._positions[0]),
-			    duration = (this._lastTime + delay - this._times[0]) / 1000,
+			var direction = this._pos.subtract(this._oldPos),
+			    duration = (this._time - this._oldTime) / 1000,
 			    ease = options.easeLinearity,
 
 			    speedVector = direction.multiplyBy(ease / duration),
@@ -131,6 +122,14 @@ L.Map.Drag = L.Handler.extend({
 
 			    decelerationDuration = limitedSpeed / (options.inertiaDeceleration * ease),
 			    offset = limitedSpeedVector.multiplyBy(-decelerationDuration / 2).round();
+
+		    console.log('-----------------');
+		    console.log('direction = ' + direction);
+		    console.log('duration = ' + duration);
+		    console.log('speedVector = ' + speedVector);
+		    console.log('speed = ' + speed);
+		    console.log('limitedSpeed = ' + limitedSpeed);
+		    console.log('limitedSpeedVector = ' + limitedSpeedVector);
 
 			if (!offset.x || !offset.y) {
 				map.fire('moveend');

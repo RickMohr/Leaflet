@@ -8,7 +8,7 @@ L.Map.mergeOptions({
 	inertia: !L.Browser.android23,
 	inertiaDeceleration: 3400, // px/s^2
 	inertiaMaxSpeed: Infinity, // px/s
-	inertiaThreshold: L.Browser.touch ? 32 : 18, // ms
+	inertiaThreshold: 50, //L.Browser.touch ? 32 : 18, // ms
 	easeLinearity: 0.2,
 
 	// TODO refactor, move to CRS
@@ -98,12 +98,14 @@ L.Map.Drag = L.Handler.extend({
 	_onDragEnd: function (e) {
 		var map = this._map,
 		    options = map.options,
+		    delay = +new Date() - this._oldTime,
 
-		    timeDelta = this._time - this._oldTime,
-
-		    noInertia = !options.inertia || timeDelta > options.inertiaThreshold;
+		    noInertia = !options.inertia || delay > options.inertiaThreshold || !this._oldTime;
 
 		map.fire('dragend', e);
+
+		document.getElementById('delay').innerHTML = delay;
+		document.getElementById('speed').innerHTML = '';
 
 		if (noInertia) {
 			map.fire('moveend');
@@ -123,13 +125,9 @@ L.Map.Drag = L.Handler.extend({
 			    decelerationDuration = limitedSpeed / (options.inertiaDeceleration * ease),
 			    offset = limitedSpeedVector.multiplyBy(-decelerationDuration / 2).round();
 
-		    console.log('-----------------');
-		    console.log('direction = ' + direction);
-		    console.log('duration = ' + duration);
-		    console.log('speedVector = ' + speedVector);
 		    console.log('speed = ' + speed);
-		    console.log('limitedSpeed = ' + limitedSpeed);
-		    console.log('limitedSpeedVector = ' + limitedSpeedVector);
+			document.getElementById('duration').innerHTML = Math.round(duration * 1000);
+			document.getElementById('speed').innerHTML = Math.round(speed);
 
 			if (!offset.x || !offset.y) {
 				map.fire('moveend');

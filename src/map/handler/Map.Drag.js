@@ -8,7 +8,6 @@ L.Map.mergeOptions({
 	inertia: !L.Browser.android23,
 	inertiaDeceleration: 3400, // px/s^2
 	inertiaMaxSpeed: Infinity, // px/s
-	inertiaThreshold: 50, //L.Browser.touch ? 32 : 18, // ms
 	easeLinearity: 0.2,
 
 	// TODO refactor, move to CRS
@@ -98,13 +97,11 @@ L.Map.Drag = L.Handler.extend({
 	_onDragEnd: function (e) {
 		var map = this._map,
 		    options = map.options,
-		    delay = +new Date() - this._oldTime,
 
-		    noInertia = !options.inertia || delay > options.inertiaThreshold || !this._oldTime;
+		    noInertia = !options.inertia || !this._oldTime;
 
 		map.fire('dragend', e);
 
-		document.getElementById('delay').innerHTML = delay;
 		document.getElementById('speed').innerHTML = '';
 
 		if (noInertia) {

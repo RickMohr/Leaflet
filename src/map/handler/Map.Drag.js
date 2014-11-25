@@ -143,6 +143,12 @@ L.Map.Drag = L.Handler.extend({
 			    decelerationDuration = limitedSpeed / (options.inertiaDeceleration * ease),
 			    offset = limitedSpeedVector.multiplyBy(-decelerationDuration / 2).round();
 
+			console.log('-----------------');
+		    console.log('maxSpeed = ' + maxSpeed);
+		    console.log('maxSpeedVector = ' + maxSpeedVector);
+		    console.log('speedVector = ' + speedVector);
+		    console.log('speed = ' + speed);
+
 			if (!offset.x || !offset.y) {
 				map.fire('moveend');
 

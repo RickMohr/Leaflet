@@ -134,7 +134,7 @@ L.Map.Drag = L.Handler.extend({
 				}
 			}
 
-			speedVector = maxSpeedVector.multiplyBy(ease * 1000);
+			speedVector = maxSpeedVector.multiplyBy(ease * 1000);  // 1000 ms/sec
 			speed = speedVector.distanceTo([0, 0]);
 
 			var limitedSpeed = Math.min(options.inertiaMaxSpeed, speed),

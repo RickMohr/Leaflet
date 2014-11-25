@@ -109,8 +109,9 @@ L.Map.Drag = L.Handler.extend({
 		var map = this._map,
 		    options = map.options,
 		    delay = +new Date() - this._lastTime,
+			nPoints = this._times.length,
 
-		    noInertia = !options.inertia || delay > options.inertiaThreshold || !this._positions[0];
+		    noInertia = !options.inertia || delay > options.inertiaThreshold || nPoints < 2;
 
 		map.fire('dragend', e);
 
@@ -118,15 +119,25 @@ L.Map.Drag = L.Handler.extend({
 			map.fire('moveend');
 
 		} else {
+			var ease = options.easeLinearity,
+			    maxSpeed = 0,
+				maxSpeedVector = new L.Point(0, 0);
 
-			var direction = this._lastPos.subtract(this._positions[0]),
-			    duration = (this._lastTime + delay - this._times[0]) / 1000,
-			    ease = options.easeLinearity,
+			for (i = 1; i < nPoints; i++) {
+				var direction = this._positions[i].subtract(this._positions[i - 1]),
+				    duration = this._times[i] - this._times[i - 1],
+					speedVector = direction.divideBy(duration),
+					speed = speedVector.distanceTo([0, 0]);
+				if (speed > maxSpeed) {
+					maxSpeed = speed;
+					maxSpeedVector = speedVector;
+				}
+			}
 
-			    speedVector = direction.multiplyBy(ease / duration),
-			    speed = speedVector.distanceTo([0, 0]),
+			speedVector = maxSpeedVector.multiplyBy(ease);
+			speed = speedVector.distanceTo([0, 0]);
 
-			    limitedSpeed = Math.min(options.inertiaMaxSpeed, speed),
+			var limitedSpeed = Math.min(options.inertiaMaxSpeed, speed),
 			    limitedSpeedVector = speedVector.multiplyBy(limitedSpeed / speed),
 
 			    decelerationDuration = limitedSpeed / (options.inertiaDeceleration * ease),

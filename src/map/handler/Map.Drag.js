@@ -61,10 +61,18 @@ L.Map.Drag = L.Handler.extend({
 		if (map.options.inertia) {
 			this._positions = [];
 			this._times = [];
+			this._recordPositionAndTime();
 		}
 	},
 
 	_onDrag: function () {
+		this._recordPositionAndTime();
+		this._map
+		    .fire('move')
+		    .fire('drag');
+	},
+
+	_recordPositionAndTime: function () {
 		if (this._map.options.inertia) {
 			var time = this._lastTime = +new Date(),
 			    pos = this._lastPos = this._draggable._absPos || this._draggable._newPos;
@@ -77,10 +85,6 @@ L.Map.Drag = L.Handler.extend({
 				this._times.shift();
 			}
 		}
-
-		this._map
-		    .fire('move')
-		    .fire('drag');
 	},
 
 	_onViewReset: function () {
@@ -106,6 +110,7 @@ L.Map.Drag = L.Handler.extend({
 	},
 
 	_onDragEnd: function (e) {
+		this._recordPositionAndTime();
 		var map = this._map,
 		    options = map.options,
 		    delay = +new Date() - this._lastTime,

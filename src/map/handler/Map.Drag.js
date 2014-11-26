@@ -110,7 +110,7 @@ L.Map.Drag = L.Handler.extend({
 		    options = map.options,
 		    delay = +new Date() - this._lastTime,
 
-		    noInertia = !options.inertia || delay > options.inertiaThreshold || this._times.length < 2;
+		    noInertia = !options.inertia || this._times.length < 2;
 
 		document.getElementById('delay').innerHTML = delay;
 		document.getElementById('speed').innerHTML = '';

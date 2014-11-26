@@ -112,7 +112,9 @@ L.Map.Drag = L.Handler.extend({
 
 		    noInertia = !options.inertia || this._times.length < 2;
 
+		document.getElementById('n').innerHTML = this._times.length;
 		document.getElementById('delay').innerHTML = delay;
+		document.getElementById('duration').innerHTML = '';
 		document.getElementById('speed').innerHTML = '';
 
 		map.fire('dragend', e);
